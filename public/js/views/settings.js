@@ -2,7 +2,7 @@
 
 import { api } from '../api.js';
 import {
-  card, confirmDialog, download, field, h, modal, money, pill, select,
+  card, confirmDialog, download, field, h, modal, money, select,
   toast, toInput,
 } from '../ui.js';
 
@@ -11,7 +11,6 @@ import {
 const PERSON_SLOTS = ['Blue', 'Orange', 'Aqua', 'Yellow', 'Magenta', 'Green', 'Violet', 'Red'];
 
 export function renderSettings(ctx) {
-  const { state } = ctx;
   return h('div', { class: 'stack' },
     householdCard(ctx),
     peopleCard(ctx),

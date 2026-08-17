@@ -3,7 +3,7 @@
 import { api } from '../api.js';
 import { todayKey } from '/shared/dates.js';
 import {
-  card, confirmDialog, dateLabel, field, h, modal, money, monthLabel,
+  card, confirmDialog, dateLabel, field, h, modal, money,
   ownerName, ownerOptions, pill, select, toast, toInput,
 } from '../ui.js';
 

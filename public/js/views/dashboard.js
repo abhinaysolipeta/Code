@@ -4,7 +4,7 @@
 import { api } from '../api.js';
 import { barListChart, donutChart, groupedBarChart, lineChart } from '../charts.js';
 import {
-  card, clear, confirmDialog, dateLabel, deltaBadge, h, icon, money, monthLabel,
+  card, dateLabel, deltaBadge, h, icon, money, monthLabel,
   ownerName, pct, pill, shortMonth, statTile, toast,
 } from '../ui.js';
 

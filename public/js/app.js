@@ -1,8 +1,8 @@
 /* App shell: state loading, month selection, routing and theme. */
 
 import { api } from './api.js';
-import { addMonths, currentMonth, isMonthKey, monthOf } from '/shared/dates.js';
-import { clear, configureFormat, h, icon, monthLabel, toast } from './ui.js';
+import { addMonths, currentMonth, isMonthKey } from '/shared/dates.js';
+import { clear, configureFormat, h, icon, monthLabel } from './ui.js';
 import { renderDashboard } from './views/dashboard.js';
 import { renderUpdate } from './views/update.js';
 import { renderAccounts } from './views/accounts.js';
