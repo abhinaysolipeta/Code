@@ -20,8 +20,8 @@ export function emptyDatabase() {
       locale: 'en-US',
       savingsTargetRate: 0.2,
       people: [
-        { id: 'p1', name: 'Me', color: '#6366f1' },
-        { id: 'p2', name: 'Partner', color: '#ec4899' },
+        { id: 'p1', name: 'Me', colorSlot: 0 },
+        { id: 'p2', name: 'Partner', colorSlot: 1 },
       ],
     },
     accounts: [],
@@ -133,6 +133,17 @@ export function migrate(db) {
   if (!Array.isArray(out.settings.people) || out.settings.people.length === 0) {
     out.settings.people = base.settings.people;
   }
+  // A person's chart colour is a palette slot, so it can take the light or dark
+  // step of that hue. Ledgers written before that carried a frozen hex.
+  out.settings.people = out.settings.people.map((person, i) => {
+    const { color, ...rest } = person;
+    return {
+      ...rest,
+      colorSlot: Number.isInteger(person.colorSlot)
+        ? Math.min(Math.max(person.colorSlot, 0), 7)
+        : i % 8,
+    };
+  });
   // Guarantee every row has an id -- everything downstream keys off it.
   for (const key of ['accounts', 'snapshots', 'transactions', 'bills', 'payments', 'categories']) {
     for (const row of out[key]) if (!row.id) row.id = newId();

@@ -225,11 +225,12 @@ export function validateSettings(body, existing) {
     if (id === JOINT) throw new ValidationError('"joint" is reserved', 'people');
     if (seen.has(id)) throw new ValidationError(`Duplicate person id "${id}"`, 'people');
     seen.add(id);
-    const color = str(p.color, 'people[].color', { fallback: '#6366f1' });
     return {
       id,
       name: str(p.name, 'people[].name', { required: true, max: 60 }),
-      color: /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#6366f1',
+      // A palette slot, not a hex: the chart resolves it to the light or dark
+      // step of that hue.
+      colorSlot: intInRange(p.colorSlot, 'people[].colorSlot', 0, 7, { fallback: i % 8 }),
     };
   });
 

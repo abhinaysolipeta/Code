@@ -26,8 +26,8 @@ const pickOne = (arr) => arr[Math.floor(rand() * arr.length)];
 const MONTHS = 14;
 
 const PEOPLE = [
-  { id: 'p1', name: 'Alex', color: '#6366f1' },
-  { id: 'p2', name: 'Sam', color: '#ec4899' },
+  { id: 'p1', name: 'Alex', colorSlot: 0 },
+  { id: 'p2', name: 'Sam', colorSlot: 1 },
 ];
 
 const ACCOUNTS = [

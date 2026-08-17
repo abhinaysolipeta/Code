@@ -51,12 +51,18 @@ function ownerBuckets(people) {
   return buckets;
 }
 
+/** Chart colour for a person: a palette slot reference, resolved by the theme. */
+export function personColor(person) {
+  const slot = Number.isInteger(person?.colorSlot) ? person.colorSlot : 0;
+  return `var(--series-${slot + 1})`;
+}
+
 function bucketsToArray(buckets, people) {
-  const names = new Map(people.map((p) => [p.id, p]));
+  const byId = new Map(people.map((p) => [p.id, p]));
   return [...buckets.entries()].map(([ownerId, amount]) => ({
     ownerId,
-    name: ownerId === JOINT ? 'Joint' : names.get(ownerId)?.name ?? 'Unassigned',
-    color: ownerId === JOINT ? '#64748b' : names.get(ownerId)?.color ?? '#94a3b8',
+    name: ownerId === JOINT ? 'Joint' : byId.get(ownerId)?.name ?? 'Unassigned',
+    color: ownerId === JOINT ? 'var(--text-muted)' : personColor(byId.get(ownerId)),
     amount,
   }));
 }
@@ -380,7 +386,7 @@ export function cashFlow(db, month) {
   const ownerRows = [...byOwner.entries()].map(([ownerId, v]) => ({
     ownerId,
     name: ownerId === JOINT ? 'Joint' : names.get(ownerId)?.name ?? 'Unassigned',
-    color: ownerId === JOINT ? '#64748b' : names.get(ownerId)?.color ?? '#94a3b8',
+    color: ownerId === JOINT ? 'var(--text-muted)' : personColor(names.get(ownerId)),
     ...v,
     net: v.income - v.expenses,
   }));
@@ -540,6 +546,7 @@ export function buildMonthlyReport(db, month, options = {}) {
     locale: settings.locale ?? 'en-US',
     household: settings.household ?? 'Household',
     people,
+    targetRate: settings.savingsTargetRate ?? null,
 
     cash: {
       checking: { ...positions.groups.checking, delta: delta('checking') },
