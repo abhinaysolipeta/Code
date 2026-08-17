@@ -1,0 +1,19 @@
+{
+  "name": "ledgerlight",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first household finance monitor: monthly reports on checking, credit cards, payments due and savings.",
+  "type": "module",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "seed": "node server/seed.js",
+    "seed:force": "node server/seed.js --force",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {}
+}
