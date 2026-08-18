@@ -2,7 +2,8 @@
 
 import { api } from './api.js';
 import { addMonths, currentMonth, isMonthKey } from '/shared/dates.js';
-import { clear, configureFormat, h, icon, monthLabel } from './ui.js';
+import { clearUnsavedGuard, hasUnsavedWork } from './unsaved.js';
+import { clear, configureFormat, confirmDialog, h, icon, monthLabel } from './ui.js';
 import { renderDashboard } from './views/dashboard.js';
 import { renderUpdate } from './views/update.js';
 import { renderAccounts } from './views/accounts.js';
@@ -91,11 +92,9 @@ function buildTopbar(ctx) {
   const monthSelect = h('select', {
     style: { width: 'auto' },
     'aria-label': 'Reporting month',
-    onchange: (e) => {
-      app.month = e.target.value;
-      location.hash = `#${app.route}/${app.month}`;
-    },
+    onchange: (e) => { location.hash = `#${app.route}/${e.target.value}`; },
   }, ...ctx.monthOptions.map((o) => h('option', { value: o.value, selected: o.value === app.month }, o.label)));
+  app.monthSelect = monthSelect;
 
   return h('header', { class: 'topbar' },
     h('div', { class: 'topbar-title' },
@@ -170,6 +169,7 @@ function showFatal(message) {
 }
 
 async function route() {
+  clearUnsavedGuard();
   const [name, month] = location.hash.replace(/^#/, '').split('/');
   app.route = ROUTES[name] ? name : 'dashboard';
   if (isMonthKey(month)) app.month = month;
@@ -183,7 +183,44 @@ async function route() {
   }
 }
 
-window.addEventListener('hashchange', route);
+let settledHash = location.hash;
+let revertingHash = false;
+
+/**
+ * A hash change has already happened by the time we hear about it, so guarding
+ * it means putting the old hash back, asking, and only then going forward.
+ */
+window.addEventListener('hashchange', async () => {
+  if (revertingHash) {
+    revertingHash = false;
+    return;
+  }
+
+  if (hasUnsavedWork()) {
+    const target = location.hash;
+    revertingHash = true;
+    location.hash = settledHash;
+
+    const discard = await confirmDialog({
+      title: 'Leave without saving?',
+      message: 'The balances you have typed on this screen have not been saved yet, and will be lost.',
+      confirmLabel: 'Discard and leave',
+    });
+    if (!discard) {
+      // The page never moved, so put the month control back where it was.
+      if (app.monthSelect) app.monthSelect.value = app.month;
+      return;
+    }
+
+    clearUnsavedGuard();
+    settledHash = target;
+    location.hash = target;
+    return;
+  }
+
+  settledHash = location.hash;
+  route();
+});
 
 applyTheme(currentTheme());
 route();

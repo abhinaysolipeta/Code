@@ -4,6 +4,7 @@
 import { api } from '../api.js';
 import { ACCOUNT_TYPES } from '/shared/model.js';
 import { dayInMonth } from '/shared/dates.js';
+import { clearUnsavedGuard, setUnsavedGuard } from '../unsaved.js';
 import {
   card, h, money, monthLabel, ownerName, pill, shortMonth, toast, toInput,
 } from '../ui.js';
@@ -29,6 +30,7 @@ export function renderUpdate(ctx) {
   }
 
   const inputs = new Map();
+  const initialValues = new Map();
   const groups = new Map();
   for (const account of accounts) {
     if (!groups.has(account.type)) groups.set(account.type, []);
@@ -67,6 +69,7 @@ export function renderUpdate(ctx) {
     }) : null;
 
     inputs.set(account.id, { balance, statement, minimum, due });
+    initialValues.set(account.id, snapshotOf({ balance, statement, minimum, due }));
 
     return h('tr', {},
       h('td', { class: 'name' },
@@ -101,6 +104,15 @@ export function renderUpdate(ctx) {
         h('tbody', {}, ...list.map(rowFor)))),
   ));
 
+  /** True once any field differs from what it held when the screen opened. */
+  const isDirty = () => {
+    for (const [id, row] of inputs) {
+      if (snapshotOf(row) !== initialValues.get(id)) return true;
+    }
+    return false;
+  };
+  setUnsavedGuard(isDirty);
+
   const save = async (button) => {
     const entries = [];
     for (const account of accounts) {
@@ -124,6 +136,8 @@ export function renderUpdate(ctx) {
     status.textContent = 'Saving…';
     try {
       const result = await api.saveSnapshots(month, entries);
+      // Cleared before navigating, or the router would ask about work we just saved.
+      clearUnsavedGuard();
       toast(`Saved ${result.saved} account balance${result.saved === 1 ? '' : 's'} for ${monthLabel(month)}`);
       await ctx.refresh();
       ctx.navigate('dashboard');
@@ -135,12 +149,15 @@ export function renderUpdate(ctx) {
     }
   };
 
-  const saveBtn = h('button', { class: 'btn btn-primary', onclick: (e) => save(e.currentTarget) },
+  const saveBtn = h('button', { class: 'btn btn-primary', type: 'submit' },
     `Save ${monthLabel(month)} balances`);
 
   const filled = accounts.filter((a) => existing.has(a.id)).length;
 
-  return h('div', { class: 'stack' },
+  return h('form', {
+    class: 'stack',
+    onsubmit: (e) => { e.preventDefault(); save(saveBtn); },
+  },
     card(`Update balances — ${monthLabel(month, true)}`, {
       note: 'Enter the figure from each statement. Leave a field blank to keep the previous month’s value.',
       actions: pill(`${filled} of ${accounts.length} recorded`, filled === accounts.length ? 'good' : 'neutral',
@@ -149,6 +166,13 @@ export function renderUpdate(ctx) {
       ...sections,
       h('div', { class: 'row', style: { marginTop: '18px' } }, saveBtn, status)),
   );
+}
+
+/** A comparable fingerprint of one row's four fields. */
+function snapshotOf(row) {
+  return [row.balance, row.statement, row.minimum, row.due]
+    .map((input) => input?.value ?? '')
+    .join('\u0000');
 }
 
 function nextMonth(month) {

@@ -50,7 +50,9 @@ Once accounts are set up, the recurring work is **one number per account**:
 
 1. **Update balances** — one screen listing every account with the previous
    month's figure beside the input, so a typo stands out. Credit cards also take
-   the statement balance, minimum payment and due date.
+   the statement balance, minimum payment and due date. Tab moves between
+   fields and **Enter saves**; leaving a blank keeps last month's value, and
+   navigating away with figures still typed asks before discarding them.
 2. **Monthly report** — reads back the whole picture for that month.
 3. **Payments due** — tick items off as you pay them. Ticking is per month, so
    the history stays intact.
