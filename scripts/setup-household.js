@@ -41,13 +41,27 @@ store.load();
 
 const created = { accounts: [], bills: [] };
 const skipped = { accounts: [], bills: [] };
+const renamed = [];
 const warnings = [];
 
 const apply = (db) => {
-  /* ---- people ------------------------------------------------------ */
-  // Only fill in names that are still the out-of-the-box placeholders, so a
-  // re-run never overwrites what you renamed yourself.
-  const PLACEHOLDERS = new Set(['Me', 'Partner']);
+  /* ---- settings & people ------------------------------------------- */
+  // Generic role words are names this tooling put there, never ones a person
+  // chose, so they are safe to replace. Anything else is treated as deliberate
+  // and left alone, so a re-run cannot undo a rename made in Settings.
+  const PLACEHOLDER_NAMES = new Set(['me', 'partner', 'wife', 'husband', 'spouse', 'person 1', 'person 2']);
+  const PLACEHOLDER_HOUSEHOLD = new Set(['our household', 'household']);
+
+  const wantedHousehold = definition.settings?.household;
+  if (wantedHousehold && wantedHousehold !== db.settings.household) {
+    if (PLACEHOLDER_HOUSEHOLD.has(db.settings.household.trim().toLowerCase())) {
+      renamed.push(`household: "${db.settings.household}" -> "${wantedHousehold}"`);
+      db.settings.household = wantedHousehold;
+    } else {
+      warnings.push(`Household is already named "${db.settings.household}"; left as is. Change it in Settings if you want "${wantedHousehold}".`);
+    }
+  }
+
   for (const person of definition.people ?? []) {
     const existing = db.settings.people.find((p) => p.id === person.id);
     if (!existing) {
@@ -56,9 +70,17 @@ const apply = (db) => {
         name: person.name ?? person.id,
         colorSlot: person.colorSlot ?? db.settings.people.length % 8,
       });
-    } else if (PLACEHOLDERS.has(existing.name) && person.name) {
+      renamed.push(`added ${person.id}: "${person.name}"`);
+      continue;
+    }
+    if (!person.name || existing.name === person.name) continue;
+
+    if (PLACEHOLDER_NAMES.has(existing.name.trim().toLowerCase())) {
+      renamed.push(`${person.id}: "${existing.name}" -> "${person.name}"`);
       existing.name = person.name;
       if (Number.isInteger(person.colorSlot)) existing.colorSlot = person.colorSlot;
+    } else {
+      warnings.push(`${person.id} is already named "${existing.name}"; left as is. Rename in Settings if you want "${person.name}".`);
     }
   }
 
@@ -149,6 +171,11 @@ const list = (items) => items.map((i) => `      ${i}`).join('\n');
 
 console.log(`\n  ${dryRun ? 'Dry run — nothing was written' : 'Applied'}: ${DATA_FILE}\n`);
 
+if (renamed.length) {
+  console.log('  Names:');
+  console.log(list(renamed));
+  console.log('');
+}
 if (created.accounts.length) {
   console.log(`  Added ${created.accounts.length} account(s):`);
   console.log(list(created.accounts));
@@ -164,7 +191,7 @@ if (warnings.length) {
   console.log('\n  Warnings:');
   console.log(list(warnings));
 }
-if (!created.accounts.length && !created.bills.length) {
+if (!created.accounts.length && !created.bills.length && !renamed.length) {
   console.log('  Nothing new to add — the ledger already matches the definition.');
 }
 

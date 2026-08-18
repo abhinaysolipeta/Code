@@ -4,16 +4,20 @@
     "Re-running is safe: anything already present is left alone, so to add an",
     "account later just add a line here and run it again.",
     "",
-    "owner       : \"p1\" (you), \"p2\" (your wife), or \"joint\"",
+    "owner       : \"p1\" (Abhinay), \"p2\" (Nikki), or \"joint\"",
     "type        : checking | savings | credit | cash | investment | loan",
     "creditLimit : optional, drives the utilisation meters",
     "dueDay      : optional day of the month a card payment is due",
     "amount      : bills only. null leaves the bill inactive until you set it."
   ],
 
+  "settings": {
+    "household": "AN Home"
+  },
+
   "people": [
-    { "id": "p1", "name": "Me", "colorSlot": 0 },
-    { "id": "p2", "name": "Wife", "colorSlot": 1 }
+    { "id": "p1", "name": "Abhinay", "colorSlot": 0 },
+    { "id": "p2", "name": "Nikki", "colorSlot": 1 }
   ],
 
   "accounts": [
