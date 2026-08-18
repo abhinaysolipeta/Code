@@ -18,6 +18,7 @@ export function renderDashboard(ctx) {
     headlineTiles(report),
     cashSection(report),
     creditSection(report),
+    loansSection(report),
     paymentsSection(ctx),
     savingsSection(report),
     chartsSection(report),
@@ -118,6 +119,7 @@ function cashSection(report) {
     ...cash.cash.accounts.map((a) => ({ ...a, group: 'Cash' })),
     ...cash.savings.accounts.map((a) => ({ ...a, group: 'Savings' })),
     ...cash.investment.accounts.map((a) => ({ ...a, group: 'Investment' })),
+    ...(cash.property?.accounts ?? []).map((a) => ({ ...a, group: 'Property' })),
   ];
 
   const table = h('table', { class: 'data' },
@@ -152,7 +154,7 @@ function cashSection(report) {
     .filter((s) => s.value > 0);
 
   return h('div', { class: 'grid grid-2-1' },
-    card('Money available', { note: `Balances as recorded for ${monthLabel(report.month, true)}` },
+    card('What you have', { note: `Balances as recorded for ${monthLabel(report.month, true)}` },
       accounts.length
         ? h('div', { class: 'table-wrap' }, table)
         : h('div', { class: 'chart-empty' }, 'No accounts yet — add one to get started.')),
@@ -232,6 +234,58 @@ function creditSection(report) {
         foot: 'If you only paid the minimums',
       }),
     ),
+  );
+}
+
+/* ---- loans and leases --------------------------------------------------- */
+
+/**
+ * Loans sit in net worth but have no card statement and no utilisation, so
+ * they get their own card. The monthly payment shows up under payments due as
+ * an ordinary bill -- these two never double-count, because only bills and
+ * card statements become obligations.
+ */
+function loansSection(report) {
+  const loans = report.credit.loans;
+  if (!loans.accounts.length) return null;
+  const { people } = report;
+
+  const rows = loans.accounts.map((loan) => h('tr', {},
+      h('td', { class: 'name' },
+        loan.name,
+        loan.institution ? h('div', { class: 'muted', style: { fontSize: '11.5px' } }, loan.institution) : null),
+      h('td', {}, ownerName(people, loan.ownerId)),
+      h('td', { class: 'num' },
+        money(loan.balance),
+        loan.stale
+          ? h('div', { class: 'muted', style: { fontSize: '11px' } },
+              loan.staleSince ? `as of ${shortMonth(loan.staleSince)}` : 'not recorded yet')
+          : null)));
+
+  return h('div', { class: 'grid grid-2-1' },
+    card('Loans and leases', { note: 'What is still owed — the monthly payments appear under payments due' },
+      h('div', { class: 'table-wrap' },
+        h('table', { class: 'data' },
+          h('thead', {}, h('tr', {},
+            h('th', {}, 'Account'),
+            h('th', {}, 'Owner'),
+            h('th', { class: 'num' }, 'Balance owed'))),
+          h('tbody', {}, ...rows)))),
+    h('div', { class: 'grid', style: { gap: '16px', alignContent: 'start' } },
+      statTile({
+        label: 'Total still owed',
+        value: money(loans.total),
+        delta: deltaBadge(loans.delta, { invert: true }),
+      }),
+      statTile({
+        label: 'Paid down this month',
+        value: money(Math.max(-loans.delta, 0)),
+        foot: loans.delta > 0
+          ? 'Balances rose this month'
+          : loans.delta === 0
+            ? 'No change recorded'
+            : 'Reduction in principal owed',
+      })),
   );
 }
 

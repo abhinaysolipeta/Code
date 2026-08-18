@@ -257,6 +257,65 @@ describe('payments due', () => {
   });
 });
 
+describe('loans and property', () => {
+  /** A mortgage tracked as a loan account *and* as a monthly bill. */
+  function withMortgage() {
+    const db = fixture();
+    db.accounts.push(
+      { id: 'mortgage', name: 'Home Mortgage', type: 'loan', ownerId: 'joint', dueDay: 1 },
+      { id: 'home', name: 'Home', type: 'property', ownerId: 'joint' },
+    );
+    db.snapshots.push(
+      { id: 'm7', accountId: 'mortgage', month: '2026-07', balance: 428_000_00 },
+      { id: 'm8', accountId: 'mortgage', month: '2026-08', balance: 426_500_00 },
+      { id: 'h8', accountId: 'home', month: '2026-08', balance: 725_000_00 },
+    );
+    db.bills.push({
+      id: 'mortgage-bill', name: 'Mortgage payment', amount: 3_850_00, dueDay: 1,
+      accountId: 'chk-j', category: 'housing', ownerId: 'joint', autopay: true, active: true,
+    });
+    return db;
+  }
+
+  test('a loan adds to liabilities without becoming a payment due', () => {
+    const r = buildMonthlyReport(withMortgage(), '2026-08', { today: TODAY });
+    assert.equal(r.credit.loans.total, 426_500_00);
+    assert.ok(r.netWorth.liabilities >= 426_500_00);
+
+    // The obligation comes from the bill alone -- counting the loan too would
+    // double-charge the household for the same mortgage.
+    const mortgageItems = r.paymentsDue.items.filter((i) => /mortgage/i.test(i.name));
+    assert.equal(mortgageItems.length, 1);
+    assert.equal(mortgageItems[0].source, 'bill');
+    assert.equal(mortgageItems[0].amount, 3_850_00);
+  });
+
+  test('paying down principal shows as a fall in what is owed', () => {
+    const r = buildMonthlyReport(withMortgage(), '2026-08', { today: TODAY });
+    assert.equal(r.credit.loans.delta, -1_500_00);
+  });
+
+  test('property is an asset, so a mortgage does not read as pure debt', () => {
+    const r = buildMonthlyReport(withMortgage(), '2026-08', { today: TODAY });
+    assert.equal(r.cash.property.total, 725_000_00);
+    assert.ok(r.netWorth.assets >= 725_000_00);
+    assert.ok(r.netWorth.net > 0, 'the home offsets the mortgage');
+  });
+
+  test('property never counts as money available', () => {
+    const withHome = buildMonthlyReport(withMortgage(), '2026-08', { today: TODAY });
+    const without = buildMonthlyReport(fixture(), '2026-08', { today: TODAY });
+    assert.equal(withHome.cash.liquid, without.cash.liquid);
+    assert.equal(withHome.cash.checking.total, without.cash.checking.total);
+  });
+
+  test('a loan is not mistaken for a credit card', () => {
+    const r = buildMonthlyReport(withMortgage(), '2026-08', { today: TODAY });
+    assert.ok(!r.credit.cards.some((c) => c.accountId === 'mortgage'));
+    assert.equal(r.credit.totalBalance, 350_00, 'card debt is unchanged by the mortgage');
+  });
+});
+
 describe('monthly report', () => {
   test('reports month-over-month deltas', () => {
     const r = report();

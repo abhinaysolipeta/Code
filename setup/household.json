@@ -8,7 +8,12 @@
     "type        : checking | savings | credit | cash | investment | loan",
     "creditLimit : optional, drives the utilisation meters",
     "dueDay      : optional day of the month a card payment is due",
-    "amount      : bills only. null leaves the bill inactive until you set it."
+    "amount      : bills only. null leaves the bill inactive until you set it.",
+    "",
+    "The mortgage, car loan and lease appear twice on purpose: as a loan",
+    "ACCOUNT (what you still owe, which lowers net worth) and as a BILL (the",
+    "monthly payment, which shows in payments due). They do not double-count --",
+    "only bills and credit-card statements ever become payments due."
   ],
 
   "settings": {
@@ -41,7 +46,11 @@
 
     { "owner": "joint", "type": "savings",  "name": "Amex High-Yield Savings",     "institution": "American Express" },
     { "owner": "joint", "type": "checking", "name": "Wells Fargo Everyday Checking", "institution": "Wells Fargo" },
-    { "owner": "joint", "type": "savings",  "name": "BECU Savings",                "institution": "BECU" }
+    { "owner": "joint", "type": "savings",  "name": "BECU Savings",                "institution": "BECU" },
+
+    { "owner": "joint", "type": "loan", "name": "Home Mortgage",  "institution": "" },
+    { "owner": "joint", "type": "loan", "name": "Mercedes Loan",  "institution": "" },
+    { "owner": "joint", "type": "loan", "name": "BMW Lease",      "institution": "" }
   ],
 
   "bills": [

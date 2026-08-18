@@ -564,6 +564,7 @@ export function buildMonthlyReport(db, month, options = {}) {
       savings: { ...positions.groups.savings, delta: delta('savings') },
       cash: { ...positions.groups.cash, delta: delta('cash') },
       investment: { ...positions.groups.investment, delta: delta('investment') },
+      property: { ...positions.groups.property, delta: delta('property') },
       liquid: positions.liquid,
       liquidDelta: positions.liquid - prev.liquid,
     },

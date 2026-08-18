@@ -97,6 +97,17 @@ report — a forgotten update never silently reads as zero.
 **Credit and loan balances are stored positive** (as the amount owed), which is
 how a statement reads. Net worth is assets minus liabilities.
 
+**A loan and its monthly payment are two different things, and both are worth
+recording.** The loan *account* holds what you still owe, so it lowers net
+worth and shows the principal coming down month by month. The *bill* holds the
+monthly payment, so it appears in payments due. They never double-count: only
+bills and credit-card statements ever become obligations.
+
+If you track a mortgage, record the property as an account too (type
+**Property**). Otherwise net worth carries the debt without the asset on the
+other side and reads far more negative than the truth. Property is an asset but
+is never counted as money available.
+
 **Saving is measured two ways, because they answer different questions:**
 
 - *Transferred to savings* — money you deliberately moved into a savings or

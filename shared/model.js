@@ -5,8 +5,11 @@ export const ACCOUNT_TYPES = {
   savings:    { label: 'Savings',    side: 'asset',     liquid: false, order: 2 },
   cash:       { label: 'Cash',       side: 'asset',     liquid: true,  order: 3 },
   investment: { label: 'Investment', side: 'asset',     liquid: false, order: 4 },
-  credit:     { label: 'Credit Card', side: 'liability', liquid: false, order: 5 },
-  loan:       { label: 'Loan',       side: 'liability', liquid: false, order: 6 },
+  // Property is an asset so a mortgage does not read as pure debt: without the
+  // home on the other side, net worth would be wrong by the value of the house.
+  property:   { label: 'Property',   side: 'asset',     liquid: false, order: 5 },
+  credit:     { label: 'Credit Card', side: 'liability', liquid: false, order: 6 },
+  loan:       { label: 'Loan',       side: 'liability', liquid: false, order: 7 },
 };
 
 export const TRANSACTION_KINDS = ['expense', 'income', 'transfer'];
