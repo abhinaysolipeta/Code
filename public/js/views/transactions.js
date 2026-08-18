@@ -3,14 +3,13 @@
 import { api } from '../api.js';
 import { todayKey } from '/shared/dates.js';
 import {
-  card, confirmDialog, dateLabel, field, h, modal, money,
+  accountOptions, card, confirmDialog, dateLabel, field, h, modal, money,
   ownerName, ownerOptions, pill, select, toast, toInput,
 } from '../ui.js';
 
 function transactionForm(tx, state) {
   const people = state.settings.people;
-  const accounts = state.accounts.filter((a) => !a.archived);
-  const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }));
+  const options = accountOptions(state.accounts, people);
 
   const kindSelect = select(
     [{ value: 'expense', label: 'Expense' }, { value: 'income', label: 'Income' }, { value: 'transfer', label: 'Transfer' }],
@@ -22,7 +21,7 @@ function transactionForm(tx, state) {
     conditional.replaceChildren();
     if (kindSelect.value === 'transfer') {
       conditional.append(field('To account',
-        select(accountOptions, tx?.transferAccountId ?? accountOptions[0]?.value, { name: 'transferAccountId' }),
+        select(options, tx?.transferAccountId ?? options[0]?.value, { name: 'transferAccountId' }),
         { hint: 'Transfers into savings or investments count towards your savings rate' }));
     } else {
       const cats = state.categories.filter((c) => c.kind === (kindSelect.value === 'income' ? 'income' : 'expense'));
@@ -39,7 +38,7 @@ function transactionForm(tx, state) {
       placeholder: '0.00', value: toInput(tx ? Math.abs(tx.amount) : null),
     }), { hint: 'Always positive — the type below sets the direction' }),
     field('Type', kindSelect),
-    field('Account', select(accountOptions, tx?.accountId ?? accountOptions[0]?.value, { name: 'accountId' })),
+    field('Account', select(options, tx?.accountId ?? options[0]?.value, { name: 'accountId' })),
     field('Description', h('input', { class: 'input', name: 'description', placeholder: 'Grocery run', value: tx?.description ?? '' })),
     field('Who', select(ownerOptions(people), tx?.ownerId ?? 'joint', { name: 'ownerId' })),
     conditional,
@@ -182,7 +181,7 @@ export function renderTransactions(ctx) {
   const monthOptions = [{ value: '', label: 'All months' }, ...ctx.monthOptions];
   const filterBar = h('div', { class: 'row', style: { marginBottom: '12px' } },
     select(monthOptions, month, { onchange: (e) => { filters.month = e.target.value; load(); }, style: 'width:auto' }),
-    select([{ value: '', label: 'All accounts' }, ...state.accounts.map((a) => ({ value: a.id, label: a.name }))],
+    select(accountOptions(state.accounts, people, { includeArchived: true, placeholder: 'All accounts' }),
       '', { onchange: (e) => { filters.accountId = e.target.value; load(); }, style: 'width:auto' }),
     select([{ value: '', label: 'Everyone' }, ...ownerOptions(people)],
       '', { onchange: (e) => { filters.ownerId = e.target.value; load(); }, style: 'width:auto' }),

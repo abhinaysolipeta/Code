@@ -13,7 +13,9 @@
     "dev": "node --watch server/index.js",
     "seed": "node server/seed.js",
     "seed:force": "node server/seed.js --force",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "setup": "node scripts/setup-household.js",
+    "setup:dry": "node scripts/setup-household.js --dry-run"
   },
   "dependencies": {}
 }

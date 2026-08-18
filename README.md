@@ -44,6 +44,30 @@ Useful environment variables:
 | `HOST` | `127.0.0.1` | Bind address — loopback only by default |
 | `FINANCE_DATA` | `./data/finance.json` | Where the ledger lives |
 
+## Setting up your accounts
+
+Typing twenty accounts into a form is miserable, so the household is defined as
+a list you can edit — `setup/household.json` — and applied with one command:
+
+```bash
+npm run setup:dry      # show what it would do, change nothing
+npm run setup          # apply it
+```
+
+It is **idempotent**: accounts are matched on name *and* owner, bills on name,
+and anything already present is left untouched. So when you open a new card,
+add a line to `setup/household.json` and run `npm run setup` again — only the
+new entries are created, and nothing you have edited by hand is overwritten.
+
+Two accounts in a household can legitimately share a name (you and your partner
+may both hold the same card). That is supported: they are distinguished by
+owner, and any name used more than once is qualified with its owner wherever it
+appears in a dropdown.
+
+A bill with no `amount` yet is created **inactive**, so unfilled stubs never
+show up as overdue $0 obligations. Give it an amount and a due day in the Bills
+screen, tick Active, and it joins the monthly checklist.
+
 ## The monthly routine
 
 Once accounts are set up, the recurring work is **one number per account**:

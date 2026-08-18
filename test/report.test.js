@@ -222,6 +222,34 @@ describe('payments due', () => {
     assert.equal(due.overdue.length, 1);
   });
 
+  test('many overdue items collapse into one alert instead of flooding', () => {
+    const db = fixture();
+    // A household with a dozen utility bills, none ticked off yet.
+    db.bills = ['Water', 'Gas', 'Electricity', 'Internet', 'HOA', 'Phone'].map((name, i) => ({
+      id: `late-${i}`, name, amount: 50_00, dueDay: 1, accountId: 'chk-j',
+      ownerId: 'joint', autopay: false, active: true,
+    }));
+    const r = buildMonthlyReport(db, '2026-08', { today: TODAY });
+    const danger = r.alerts.filter((a) => a.level === 'danger');
+
+    assert.equal(r.paymentsDue.overdue.length, 6);
+    assert.equal(danger.length, 1, 'six overdue bills produce one alert, not six');
+    assert.match(danger[0].title, /6 payments are past due/);
+    assert.match(danger[0].detail, /Water/);
+  });
+
+  test('a couple of overdue items are still named individually', () => {
+    const db = fixture();
+    db.bills = ['Water', 'Gas'].map((name, i) => ({
+      id: `late-${i}`, name, amount: 50_00, dueDay: 1, accountId: 'chk-j',
+      ownerId: 'joint', autopay: false, active: true,
+    }));
+    const r = buildMonthlyReport(db, '2026-08', { today: TODAY });
+    const danger = r.alerts.filter((a) => a.level === 'danger');
+    assert.equal(danger.length, 2);
+    assert.match(danger[0].title, /is past due/);
+  });
+
   test('windows the next 7 and 30 days from today', () => {
     const r = report();
     assert.deepEqual(r.paymentsDue.next7.map((i) => i.name), ['Internet']); // due the 22nd, 5 days out

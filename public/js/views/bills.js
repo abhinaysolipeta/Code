@@ -2,16 +2,13 @@
 
 import { api } from '../api.js';
 import {
-  card, confirmDialog, field, h, modal, money, ownerName, ownerOptions,
-  pill, select, toast, toInput,
+  accountOptions, card, confirmDialog, field, h, modal, money, ownerName,
+  ownerOptions, pill, select, toast, toInput,
 } from '../ui.js';
 
 function billForm(bill, state) {
   const people = state.settings.people;
-  const accountOptions = [
-    { value: '', label: '— none —' },
-    ...state.accounts.filter((a) => !a.archived).map((a) => ({ value: a.id, label: a.name })),
-  ];
+  const options = accountOptions(state.accounts, people, { placeholder: '— none —' });
   const categoryOptions = [
     { value: '', label: '— none —' },
     ...state.categories.filter((c) => c.kind === 'expense').map((c) => ({ value: c.id, label: c.name })),
@@ -30,7 +27,7 @@ function billForm(bill, state) {
       class: 'input', name: 'dueDay', type: 'number', min: '1', max: '31',
       value: bill?.dueDay ?? 1,
     }), { hint: 'Day of the month' }),
-    field('Paid from', select(accountOptions, bill?.accountId ?? '', { name: 'accountId' })),
+    field('Paid from', select(options, bill?.accountId ?? '', { name: 'accountId' })),
     field('Category', select(categoryOptions, bill?.category ?? '', { name: 'category' })),
     field('Owner', select(ownerOptions(people), bill?.ownerId ?? 'joint', { name: 'ownerId' })),
     field('Autopay', h('label', { class: 'check' },

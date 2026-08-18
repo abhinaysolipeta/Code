@@ -452,12 +452,23 @@ function buildAlerts({ positions, credit, due, flow, settings, month }) {
   const alerts = [];
   const targetRate = settings?.savingsTargetRate ?? null;
 
-  for (const item of due.overdue) {
+  // One alert per overdue item reads fine for a couple, but a household with a
+  // dozen bills would bury every other alert, so past a handful they collapse
+  // into a single line naming them.
+  if (due.overdue.length > 3) {
     alerts.push({
       level: 'danger',
-      title: `${item.name} is past due`,
-      detail: `Due ${item.dueDate}. ${item.source === 'card' ? 'Statement balance' : 'Amount'} outstanding.`,
+      title: `${due.overdue.length} payments are past due`,
+      detail: `Past their due date and not yet ticked off: ${due.overdue.map((i) => i.name).join(', ')}.`,
     });
+  } else {
+    for (const item of due.overdue) {
+      alerts.push({
+        level: 'danger',
+        title: `${item.name} is past due`,
+        detail: `Due ${item.dueDate}. ${item.source === 'card' ? 'Statement balance' : 'Amount'} outstanding.`,
+      });
+    }
   }
 
   const dueSoon = sum(due.next7.map((i) => i.amount));

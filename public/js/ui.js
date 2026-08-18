@@ -252,6 +252,26 @@ export function ownerColor(people, ownerId) {
   return `var(--series-${(Number.isInteger(person.colorSlot) ? person.colorSlot : 0) + 1})`;
 }
 
+/**
+ * Options for an account picker. A household can legitimately hold two cards
+ * with the same name (one each), so any name used more than once is qualified
+ * by its owner -- otherwise the two are indistinguishable in a dropdown.
+ */
+export function accountOptions(accounts, people, { includeArchived = false, placeholder } = {}) {
+  const usable = accounts.filter((a) => includeArchived || !a.archived);
+  const nameCounts = new Map();
+  for (const a of usable) {
+    nameCounts.set(a.name.toLowerCase(), (nameCounts.get(a.name.toLowerCase()) ?? 0) + 1);
+  }
+  const options = usable.map((a) => ({
+    value: a.id,
+    label: nameCounts.get(a.name.toLowerCase()) > 1
+      ? `${a.name} — ${ownerName(people, a.ownerId)}`
+      : a.name,
+  }));
+  return placeholder ? [{ value: '', label: placeholder }, ...options] : options;
+}
+
 export function ownerOptions(people, { includeJoint = true } = {}) {
   return [
     ...(includeJoint ? [{ value: 'joint', label: 'Joint' }] : []),

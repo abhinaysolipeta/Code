@@ -1,0 +1,55 @@
+{
+  "_comment": [
+    "Your household, as a list you can edit. Run `npm run setup` to apply it.",
+    "Re-running is safe: anything already present is left alone, so to add an",
+    "account later just add a line here and run it again.",
+    "",
+    "owner       : \"p1\" (you), \"p2\" (your wife), or \"joint\"",
+    "type        : checking | savings | credit | cash | investment | loan",
+    "creditLimit : optional, drives the utilisation meters",
+    "dueDay      : optional day of the month a card payment is due",
+    "amount      : bills only. null leaves the bill inactive until you set it."
+  ],
+
+  "people": [
+    { "id": "p1", "name": "Me", "colorSlot": 0 },
+    { "id": "p2", "name": "Wife", "colorSlot": 1 }
+  ],
+
+  "accounts": [
+    { "owner": "p1", "type": "checking", "name": "BofA Checking",              "institution": "Bank of America" },
+    { "owner": "p1", "type": "checking", "name": "Chase Checking",             "institution": "Chase" },
+    { "owner": "p1", "type": "credit",   "name": "BofA Customized Cash Rewards", "institution": "Bank of America" },
+    { "owner": "p1", "type": "credit",   "name": "Chase Sapphire Preferred",   "institution": "Chase" },
+    { "owner": "p1", "type": "credit",   "name": "Chase Amazon Prime Visa",    "institution": "Chase" },
+    { "owner": "p1", "type": "credit",   "name": "Capital One Venture X",      "institution": "Capital One" },
+    { "owner": "p1", "type": "credit",   "name": "Amex EveryDay",              "institution": "American Express" },
+    { "owner": "p1", "type": "credit",   "name": "Amex Delta SkyMiles Gold",   "institution": "American Express" },
+    { "owner": "p1", "type": "credit",   "name": "Discover",                   "institution": "Discover" },
+
+    { "owner": "p2", "type": "checking", "name": "Chase Checking",             "institution": "Chase" },
+    { "owner": "p2", "type": "credit",   "name": "Chase Freedom",              "institution": "Chase" },
+    { "owner": "p2", "type": "credit",   "name": "Chase Sapphire Preferred",   "institution": "Chase" },
+    { "owner": "p2", "type": "credit",   "name": "BofA Alaska Ascent",         "institution": "Bank of America" },
+    { "owner": "p2", "type": "credit",   "name": "Amex Platinum",              "institution": "American Express" },
+    { "owner": "p2", "type": "credit",   "name": "Citi Custom Rewards",        "institution": "Citi" },
+    { "owner": "p2", "type": "credit",   "name": "Apple Card",                 "institution": "Goldman Sachs" },
+
+    { "owner": "joint", "type": "savings",  "name": "Amex High-Yield Savings",     "institution": "American Express" },
+    { "owner": "joint", "type": "checking", "name": "Wells Fargo Everyday Checking", "institution": "Wells Fargo" },
+    { "owner": "joint", "type": "savings",  "name": "BECU Savings",                "institution": "BECU" }
+  ],
+
+  "bills": [
+    { "owner": "joint", "name": "Home Mortgage",         "category": "housing",   "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "HOA",                   "category": "housing",   "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "BMW Lease",             "category": "transport", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "Mercedes Loan Payment", "category": "transport", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "Electricity",           "category": "utilities", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "Gas",                   "category": "utilities", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "Water",                 "category": "utilities", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "Waste Water",           "category": "utilities", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "Internet",              "category": "utilities", "amount": null, "dueDay": null },
+    { "owner": "joint", "name": "T-Mobile",              "category": "utilities", "amount": null, "dueDay": null }
+  ]
+}
