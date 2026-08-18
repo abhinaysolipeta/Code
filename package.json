@@ -15,7 +15,8 @@
     "seed:force": "node server/seed.js --force",
     "test": "node --test test/*.test.js",
     "setup": "node scripts/setup-household.js",
-    "setup:dry": "node scripts/setup-household.js --dry-run"
+    "setup:dry": "node scripts/setup-household.js --dry-run",
+    "build:preview": "node scripts/build-static.js"
   },
   "dependencies": {}
 }

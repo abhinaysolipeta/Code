@@ -439,7 +439,7 @@ function chartsSection(report) {
       height: 260,
     }));
 
-  const categories = card('Where the money went', { note: monthLabel(report.month, true), center: true },
+  const categories = card('Where the money went', { note: monthLabel(report.month, true) },
     barListChart({
       rows: flow.byCategory.slice(0, 9).map((c) => ({
         label: c.name,
